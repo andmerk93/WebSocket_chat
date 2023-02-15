@@ -67,3 +67,4 @@ uvicorn server:app --reload
 ## ToDo:
  - Переписать стили в index.html без Bootstrap
  - Позже убрать старый server.py и исходное ТЗ
+ - Добавить запуск uvicorn в server.py
