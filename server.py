@@ -32,6 +32,16 @@ async def websocket_endpoint(websocket: WebSocket):
         time = datetime.now().strftime("%H:%M:%S")
         json_data = await websocket.receive_text()
         data = json.loads(json_data)
-        nickname, text = [*data.items()][0]
+        nickname = data['nick']
+        text = data['text']
+#        nickname, text = [*data.items()][0]
         count += 1
-        await websocket.send_text(f"{(count):03} [{time}] {nickname}: {text}")
+#        export_data = {'message': f"{(count):03} [{time}] {nickname}: {text}"}
+        export_data = {
+            'count': f"{(count):03}",
+            'time': time,
+            'nickname': nickname,
+            'text': text,
+        }
+        json_data = json.dumps(export_data)
+        await websocket.send_text(json_data)

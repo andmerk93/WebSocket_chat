@@ -1,5 +1,5 @@
 from datetime import datetime
-from json import loads
+from json import dumps, loads
 from typing import List
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -26,8 +26,15 @@ class ConnectionManager:
         for connection in self.active_connections:
             if connection == websocket:
                 nickname = 'You'
-            await connection.send_text(
-                f"[{time}] {nickname}: {message}"
+            export_data = {
+                'count': f"{(10):03}",
+                'time': time,
+                'nickname': nickname,
+                'text': message,
+            }
+            json_data = dumps(export_data)
+            await connection.send_text(json_data
+#                f"[{time}] {nickname}: {message}"
             )
 
 
@@ -58,7 +65,9 @@ async def websocket_endpoint(websocket: WebSocket):
             time = datetime.now().strftime("%H:%M:%S")
             json_data = await websocket.receive_text()
             data = loads(json_data)
-            nickname, message = [*data.items()][0]
+            nickname = data['nick']
+            message = data['text']
+            #nickname, message = [*data.items()][0]
             await manager.broadcast(time, nickname, message, websocket)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
