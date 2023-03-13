@@ -2,8 +2,10 @@ from datetime import datetime
 from json import dumps, loads
 from typing import List
 
+import uvicorn
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse
+
 
 class ConnectionManager:
     def __init__(self):
@@ -17,25 +19,22 @@ class ConnectionManager:
         self.active_connections.remove(websocket)
 
     async def broadcast(
-        self, 
+        self,
         time: str,
         nickname: str,
-        message: str, 
+        message: str,
         websocket: WebSocket
     ):
         for connection in self.active_connections:
             if connection == websocket:
                 nickname = 'You'
             export_data = {
-                'count': f"{(10):03}",
                 'time': time,
                 'nickname': nickname,
                 'text': message,
             }
             json_data = dumps(export_data)
-            await connection.send_text(json_data
-#                f"[{time}] {nickname}: {message}"
-            )
+            await connection.send_text(json_data)
 
 
 manager = ConnectionManager()
@@ -67,9 +66,11 @@ async def websocket_endpoint(websocket: WebSocket):
             data = loads(json_data)
             nickname = data['nick']
             message = data['text']
-            #nickname, message = [*data.items()][0]
             await manager.broadcast(time, nickname, message, websocket)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         await manager.broadcast(time, nickname, 'left the chat', websocket)
 
+
+if __name__ == "__main__":
+    uvicorn.run('server_chat:app', reload=True)

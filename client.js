@@ -5,11 +5,10 @@ ws.onmessage = function(event) {
     }
     var messages = document.getElementById('messages')
     var message = document.createElement('li')
-    const count = JSON.parse(event.data).count
     const time = JSON.parse(event.data).time
     const nickname = JSON.parse(event.data).nickname
     const text = JSON.parse(event.data).text
-    const full_text = count + " [" + time + "] " + nickname + ": " + text
+    const full_text = " [" + time + "] " + nickname + ": " + text
     var content = document.createTextNode(full_text)
     message.appendChild(content)
     messages.appendChild(message)
